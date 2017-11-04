@@ -1,4 +1,4 @@
-/* Ebadge v0.1 by Kelly "STrRedWolf" Price
+/* Ebadge v0.2 by Kelly "STrRedWolf" Price
  *
  * Based on Adafruit's Bitmap example code.
  *
@@ -36,19 +36,20 @@
 
 #ifdef HARDSPI
 // Hardware SPI that's not aliased anywhere (like the Feather)
-#define TFT_DC 12
-#define TFT_CS 13
-#define TFT_RST 11
-#define SD_CS 6
-#define LITEPIN 10
+// On the Feather M0:
+#define TFT_DC 10
+#define TFT_CS 9
+#define TFT_RST -1
+#define SD_CS 5
+#define LITEPIN 0
 
 #else
 // Uno/Duemilanove/Pro Mini multifunction pins.
 #define TFT_DC 2
 #define TFT_CS 10
-#define TFT_RST 4
+#define TFT_RST -1
 #define SD_CS 7
-#define LITEPIN 6
+#define LITEPIN 0
 
 #endif
 
@@ -62,46 +63,51 @@ void setup(void) {
   Serial.begin(9600);
 
   tft.begin(HX8357D);
+  tft.setRotation(2); // upsidedown
   tft.fillScreen(HX8357_BLUE);
 
-  pinMode(LITEPIN,OUTPUT);
-  analogWrite(LITEPIN,191);
+  if(LITEPIN != 0) {
+    pinMode(LITEPIN,OUTPUT);
+    analogWrite(LITEPIN,191);
+  }
   
-  Serial.print("Initializing SD card...");
+  tft.print(F("Initializing SD card... "));
   if (!SD.begin(SD_CS)) {
-    Serial.println("failed!");
+    tft.fillScreen(HX8357_RED);
+    tft.println(F("failed!"));
     opmode++;
   }
-  Serial.println("OK!");
-
-  //ppmDraw("0001.PPM");
+  tft.println(F("OK!"));
 }
 
-void loop() {
-  if(opmode)
-    bbs();
-  else
-    showpic();
+void loop(void) {
+  tft.println(F("In the loop..."));
+  showpic();
 }
 
 void showpic() {
-  int fi;
-  char *fname = "0000.PPM";
+  char fi;
+  char fname[16] = "0000.PPM";
   
-  fi=fileindex;
-  if( (fi/1000) > 0) {
-    fname[0]=(char)(fi/1000)+'0';
-    fi=fi%1000;
-  }
+  fi=(char)(fileindex & 255);
+
+  tft.println(fname);
+
   if( (fi/100) > 0) {
     fname[1]=(char)(fi/100)+'0';
     fi=fi%100;
   }
+  tft.println(fname);
+
   if((fi/10) > 0) {
     fname[2]=(char)(fi/10)+'0';
     fi=fi%10;
   }
-  fname[3]=(char)fi + '0';
+  tft.println(fname);
+  tft.print(F("bug"));
+  fname[3]=((char)(fi & 15)+'0');
+
+  tft.println(fname);
 
   if(ppmDraw(fname) > 0)
   {
@@ -121,7 +127,8 @@ void showpic() {
 // makes loading a little faster.  20 pixels seems a
 // good balance.
 
-#define BUFFPIXEL 20
+// With the M0's, do whole lines.
+#define BUFFPIXEL 80
 
 uint8_t ppmDraw(char *filename) {
 
@@ -130,22 +137,23 @@ uint8_t ppmDraw(char *filename) {
   uint32_t ppmImageoffset = 0;
   uint8_t  sdbuffer[3*BUFFPIXEL]; // pixel buffer (R+G+B per pixel)
   uint8_t  buffidx = sizeof(sdbuffer); // Current position in sdbuffer
-  int      w, h, row, col;
+  int      w, h, row, col, berr;
   uint8_t  r, g, b;
   uint32_t pos = 0, startTime = millis();
 
-  //Serial.println(F("Loading image '"));
-  //Serial.println(filename);
-  
+  tft.print(F("Loading image "));
+  tft.println(filename);
 
   // Open requested file on SD card
   if ((ppmFile = SD.open(filename)) == NULL) {
-    Serial.print(F("File not found: "));
-    Serial.println(filename);
+    //Serial.print(F("File not found: "));
+    //Serial.println(filename);
     tft.print(F("File not found: "));
     tft.println(filename);
     return 0;
   }
+
+  tft.println(F("Opened..."));
 
   // Parse the PPM header.
   // The format is roughly "P6 X Y Z" followed by a hard LF and raw RGB
@@ -157,8 +165,8 @@ uint8_t ppmDraw(char *filename) {
   if(ppmFile.read() != 0x50 && ppmFile.read() != 0x36)
   {
       // Nope.
-      Serial.print(F("File not a P6 PPM:"));
-      Serial.println(filename);
+      tft.print(F("File not a P6 PPM: "));
+      tft.println(filename);
     return 1;
   }
   w=readNum(ppmFile);
@@ -167,14 +175,18 @@ uint8_t ppmDraw(char *filename) {
   h=readNum(ppmFile);
   maxVal=readNum(ppmFile);
   ppmImageoffset=ppmFile.position();  
-  
-  tft.setAddrWindow(0, 0, 319, 479);
 
+//  tft.println(F("Ready to plot."));
+  
+  //tft.setAddrWindow(0, 0, 319, 479);
+
+  berr=-1;
   for (row=0; row<h; row++) { // For each scanline...
     for (col=0; col<w; col++) { // For each pixel...
       // Time to read more pixel data?
       if (buffidx >= sizeof(sdbuffer)) { // Indeed
-        ppmFile.read(sdbuffer, sizeof(sdbuffer));
+        berr=ppmFile.read(sdbuffer, sizeof(sdbuffer));
+        if(berr==-1) break;
         buffidx = 0; // Set index to beginning
       }
       // Convert pixel from ppm to TFT format, push to display
@@ -182,10 +194,12 @@ uint8_t ppmDraw(char *filename) {
       g = sdbuffer[buffidx++];
       b = sdbuffer[buffidx++];
       
-      tft.pushColor(tft.color565(r,g,b));
+      //tft.pushColor(tft.color565(r,g,b));
+      tft.drawPixel(col,row,tft.color565(r,g,b));
     } // end pixel
-    delay(10);
+    // delay(10);
   } // end scanline
+  
   ppmFile.close();
   return 1;
 }
