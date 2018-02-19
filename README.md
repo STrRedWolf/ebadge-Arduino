@@ -3,28 +3,52 @@ An electronic badge using Adafruit parts!  It's a 3.5" screen that rotates throu
 
 Around November 1st, 2017, Adafruit released a 3.5" TFT Feather wing, which simplifies things, and makes it all accessible!
 
-# New version (mark 2)
+# New version (mark 3 and 4)
 
 ## Bill of Materials
 
+Get all of these from Adafruit!
+
 * 3.5" TFT Feather wing
 * Feather M0 Basic Proto
-* LithIon battery, 3.7v 2200mAh barrel shape
+* LithIon battery.  The mark 3 version will fit a PKCELL ICR18650 2200mAh 3.7V cell (barrel shape).  The mark 4 uses a PKCELL flat-pack 2500mAh 3.7V cell.
 * A small capacity (8 GB is fine) MicroSD card, FAT16 formatted.
-* A 3D printer (of course)
+* A 3D printer (of course -- I used a Printrbot Simple Metal)
 * Breadboard friendly SPDT slide switch
 * Wire, of course. (the silicon coated wire may be best. I used the 22awg wire I had.)
 * Heat-shrink tubing
 
+You'll also need some Scotch tape.
+
 ## Building it!
 
-Print out the parts in the STL folder.  The TFT goes right in and is pressure fit with the back half.
+Print out the parts first.  If you have the round battery, you'll have to print the mark 3 version (EBadge3-*.stl).  Flat battery is the mark 4 design (EBadge4-*.stl).  The TFT goes right in and is pressure fit with the back half.  Mark 3's will need to use the divot to keep the switch in place.
 
-You will need to solder two wires to the switch (middle and one of the sides) first.  Then solder one wire to the Enable Pad, the other to the Ground pad. 
+You will need to solder two wires to the switch (middle pin and one of the side pins) first.  Then solder one wire to the Enable Pad, the other to the Ground pad. Snip the unused pin on the switch.  Make sure the Enable switch on the TFT is switched ON, and the switch itself is switched to connect the two wired pins.  Afterwards, bend the metal that forms the short sides of the switch out so they're flush with the switch (we'll use these to keep the switch from moving).
 
-Solder up the M0 with the shipped headers, plug in the battery, and plug it in the back of the TFT.  I route the cable of the battery under the M0 Feather.  Make sure the Enable switch on the TFT is switched ON!
+Solder up the M0 with the shipped headers.  
 
-Click in the switch to the back half of the case (hopefully your wires were long enough).  Now close up the two halves of the case.  
+From here, it depends on which version you have.
+
+### Mark 3 (barrel battery)
+
+Plug in the battery, and plug it in the back of the TFT.  I route the cable of the battery under the M0 Feather. 
+
+Slide the switch into it's place and follow it up with the "divot" you printed.  You did print the divot, right?
+
+Now close up the two halves and you should be ready for programming it.
+
+### Mark 4 (flat battery)
+
+Take the Feather M0 you soldered up, and trim all the pins under the board to be flush with the plastic spacer the pins were shipped with.  When they're all done, remove the spacer.  The length of the pins fits on top of the TFT's connector, making it rather flush.
+
+Connect the battery and tape it to the back shell you printed, all the way up top. The raised part at the bottom corner (where the USB port is) lays on top of the switch, so you should place the battery catty-cornered from it.
+
+Place the switch in the top shell.  You may find it easier to tape the switch in place.
+
+Now close up the two halves and you should be ready for programming it.
+
+## Program it!
 
 Plug it in, turn it on, and upload the sketch.  
 
@@ -57,3 +81,4 @@ That said, if you got Gimp, save RGB formtted binary PPMs.  Those work.  Start w
 # Ideas for expansion
 
 * Hidden 80x30 column VT52 terminal?
+* Micro BBS?
