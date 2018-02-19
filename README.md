@@ -78,6 +78,16 @@ The eBadge as it's coded now will **NOT** take BMPs.  I've elected to use a much
 
 That said, if you got Gimp, save RGB formtted binary PPMs.  Those work.  Start with 0001.PPM and go all the way up to 0255.PPM.
 
+# Longevity
+
++----------+-------------------------------+
+| Revision | Time                          |
++----------+-------------------------------+
+| Mark 3   | 10 hours (roughly)
+| Mark 4   | 11+ hours (was stopped early) |
++----------+-------------------------------+
+
+
 # Ideas for expansion
 
 * Hidden 80x30 column VT52 terminal?
