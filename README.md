@@ -1,5 +1,5 @@
 # ebadge-Arduino
-An electronic badge using Adafruit parts!  It's a 3.5" screen that rotates through PPM images stored on a 1GB MicroSD card.
+An electronic badge using Adafruit parts!  It's a 3.5" screen that rotates through TGA (previously TGA) images stored on a 1GB MicroSD card.
 
 Around November 1st, 2017, Adafruit released a 3.5" TFT Feather wing, which simplifies things, and makes it all accessible!
 
@@ -72,11 +72,16 @@ Now prep your MicroSD card!
 
 The first photo in the images directory gives an idea on how to solder things.  The switch is soldered on the back and centered with the Feather.  A six-pin header is soldered starting at pin 13 and going to pin 6 (which in the end will leave pin 9 "floating").  Two individual headers are covering all but a hole for the ground and 3.3V that stretches along the sides of the Feather.  A wire goes from a ground to the switch and then to the Enable pin.  A three-pin header is soldered on "backwards" on the SPI pins to keep it compact.
 
-# Prepping the MicroSD card:  Portable PixMaps (PPM)
+# Prepping the MicroSD card:  Truevision TGA (Targa) files.
 
-The eBadge as it's coded now will **NOT** take BMPs.  I've elected to use a much simplier format called Portable PixMap, or PPM.  This is a Unix-borne format, but most software (including Gimp) will export to "binary PPM".  PPM has a simple header and then data right after it, making the code much simpler.  For details, go to NetPBM's site.
+The eBadge as it's coded now will **NOT** take BMPs.  
 
-That said, if you got Gimp, save RGB formtted binary PPMs.  Those work.  Start with 0001.PPM and go all the way up to 0255.PPM.
+Previously, I elected to use a much simplier format called Portable PixMap, or PPM.  This is a Unix-borne format, but most software (including Gimp) will export to "binary PPM".  PPM has a simple header and then data right after it, making the code much simpler.  For details, go to NetPBM's site.
+
+As of v0.3, we can now read uncompressed TGA files.  IrfanView converts to this format, and Gimp will save to this format in both regular (flipped) and unflipped versions.  The code handles both.
+
+Resize the files at 320px wide, 480px tall files, and name each one starting with 0001.TGA all the way up to 0255.TGA.  Put them on the root of the MicroSD card.
+
 
 # Longevity
 
